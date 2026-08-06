@@ -280,14 +280,14 @@
 
     <!-- 3 Squishy Buttons -->
     <div class="buttons">
-      <button class="btn feed" onclick="doFeed()">🍰</button>
-      <button class="btn pet" onclick="doPet()">✋</button>
-      <button class="btn kiss" onclick="doKiss()">💋</button>
+      <button id="feedBtn" class="btn feed" type="button">🍰</button>
+      <button id="petBtn" class="btn pet" type="button">✋</button>
+      <button id="kissBtn" class="btn kiss" type="button">💋</button>
     </div>
     <div class="labels">
       <span>FEED</span><span>PET</span><span>KIHH</span>
     </div>
-    <button id="resetBtn" onclick="resetGame()" style="display:none;">↻ RESET</button>
+    <button id="resetBtn" type="button" style="display:none;">↻ RESET</button>
   </div>
 </div>
 
@@ -496,6 +496,12 @@ function resetGame(){
   toad.style.filter = 'none';
   hearts.innerHTML = '';
 }
+
+document.getElementById('feedBtn').addEventListener('click', doFeed);
+document.getElementById('petBtn').addEventListener('click', doPet);
+document.getElementById('kissBtn').addEventListener('click', doKiss);
+document.getElementById('resetBtn').addEventListener('click', resetGame);
+
 window.addEventListener('DOMContentLoaded', async () => {
   // This unlocks the Discord window so buttons can be clicked
   if (window.discordSdk) {
