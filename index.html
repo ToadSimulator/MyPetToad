@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Toad Pet</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<!-- === PASTE PART 2 (CSS) RIGHT HERE === -->
+<style>
+  * { box-sizing: border-box; image-rendering: pixelated; }
+  body {
+    margin: 0;
+    background: #8ecae6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Press Start 2P', monospace;
+  }
+  .game-wrapper { padding: 10px; }
+  .game {
+    width: 300px;
+    height: 300px;
+    background: #fdf6e3;
+    border: 4px solid #222;
+    box-shadow: 6px 6px 0px #222;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+  }
+  h1 { font-size: 10px; margin: 6px 0 4px 0; letter-spacing: 1px; color: #222; }
+  .msg {
+    font-size: 7px;
+    background: #fff;
+    border: 2px solid #222;
+    padding: 5px 6px;
+    min-width: 140px;
+    text-align: center;
+    color: #222;
+  }
+  .toad-scene {
+    width: 100%;
+    height: 135px;
+    background: #c8f0c8;
+    border: 3px solid #222;
+    margin: 8px 0;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    overflow: hidden;
+    padding-bottom: 10px;
+  }
+  /* TOAD */
+  .toad {
+    position: relative;
+    width: 110px;
+    height: 68px;
+    background: #7ac74f;
+    border: 3px solid #222;
+    border-radius: 26px 26px 18px 18px;
+    z-index: 2;
+  }
+  .eyes {
+    position: absolute;
+    top: -16px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+  .eye {
+    width: 32px;
+    height: 32px;
+    background: #fff;
+    border: 3px solid #222;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  .pupil { width: 14px; height: 14px; background: #222; border-radius: 50%; }
+  .shine { width: 5px; height: 5px; background: #fff; border-radius: 50%; position: absolute; top: 4px; left: 5px; border: 1px solid #222; }
+  .mouth {
+    width: 34px;
+    height: 8px;
+    background: #222;
+    border-radius: 4px;
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: all 0.2s;
+  }
+  .mouth.happy { height: 14px; border-radius: 0 0 12px 12px; width: 28px; }
+  .belly {
+    width: 52px;
+    height: 26px;
+    background: #eaffc2;
+    border: 2px solid #222;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .cheek {
+    width: 14px;
+    height: 9px;
+    background: #ff8fa3;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 22px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .cheek.left { left: 14px; }
+  .cheek.right { right: 14px; }
+  .cheek.show { opacity: 1; }
+  .tongue {
+    width: 14px;
+    height: 0px;
+    background: #ff4d6d;
+    border-left: 2px solid #222;
+    border-right: 2px solid #222;
+    border-bottom: 2px solid #222;
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 0 0 8px 8px;
+    transition: height 0.15s;
+    z-index: 5;
+  }
+  .tongue.out { height: 42px; }
+  .legs {
+    position: absolute;
+    bottom: -10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 6px;
+  }
+  .leg { width: 28px; height: 16px; background: #5aa83a; border: 3px solid #222; border-radius: 10px 10px 6px 6px; }
+
+  /* EFFECTS */
+  .fly {
+    position: absolute;
+    top: 30px;
+    right: -30px;
+    font-size: 18px;
+    opacity: 0;
+    transition: all 0.35s ease-out;
+    z-index: 4;
+  }
+  .fly.show { right: 42px; opacity: 1; top: 45px; }
+  .fly.eaten { transform: scale(0) translateY(-20px); opacity: 0; }
+  .hearts { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 10; }
+  .heart { position: absolute; font-size: 14px; animation: floatUp 0.8s forwards; }
+
+  /* BUTTONS */
+  .buttons { display: flex; gap: 10px; }
+  .btn {
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+    border: 3px solid #222;
+    border-radius: 14px;
+    box-shadow: 0 4px 0 #222;
+    cursor: pointer;
+    transition: transform 0.08s, box-shadow 0.08s;
+  }
+  .btn:active { transform: translateY(4px) scale(0.92); box-shadow: 0 0 0 #222; }
+  .btn.feed { background: #ffec99; }
+  .btn.pet { background: #a0e7e5; }
+  .btn.kiss { background: #ffb5e8; }
+  .labels { display: flex; gap: 10px; font-size: 6px; margin-top: 5px; color: #222; }
+  .labels span { width: 56px; text-align: center; }
+
+  /* ANIMATIONS */
+  .toad.squish { animation: squish 0.4s ease; }
+  .toad.bounce { animation: bounce 0.5s ease; }
+  .toad.kissy { animation: kissy 0.6s ease; }
+
+  @keyframes squish {
+    0% { transform: scale(1,1); }
+    30% { transform: scale(1.2, 0.8); }
+    50% { transform: scale(0.9, 1.1); }
+    100% { transform: scale(1,1); }
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0) scale(1); }
+    25% { transform: translateY(-10px) scale(1.05, 0.95); }
+    50% { transform: translateY(0) scale(0.95, 1.05); }
+  }
+  @keyframes kissy {
+    0%,100% { transform: scale(1); }
+    30% { transform: scale(1.15, 0.85); }
+    60% { transform: scale(0.95, 1.05); }
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(0.5); opacity: 1; }
+    100% { transform: translateY(-45px) scale(1.2); opacity: 0; }
+  }
+  .meters { width: 100%; display: flex; flex-direction: column; gap: 3px; margin: 2px 0; }
+  .meter { display: flex; align-items: center; gap: 4px; font-size: 5px; color: #222; }
+  .meter span { width: 38px; text-align: right; }
+  .bar { flex: 1; height: 8px; background: #fff; border: 2px solid #222; position: relative; overflow: hidden; }
+  .fill { height: 100%; width: 100%; transition: width 0.2s linear; }
+  .fill.hunger { background: #ff9f1c; }
+  .fill.love { background: #ff4d6d; }
+  .fill.fun { background: #2ec4b6; }
+  .fill.low { animation: blink 0.4s infinite alternate; }
+  @keyframes blink { from { opacity: 1; } to { opacity: 0.5; } }
+  #resetBtn{
+    margin-top: 6px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    background: #ff4d6d;
+    color: #fff;
+    border: 2px solid #222;
+    padding: 6px 10px;
+    box-shadow: 2px 2px 0 #222;
+    cursor: pointer;
+    display: none;
+  }
+  #resetBtn:active{ transform: translate(2px,2px); box-shadow: none; }
+  .game.dead{ background: #e0e0e0; }
+  .game.dead .toad{ filter: grayscale(1) brightness(0.8) !important; }
+  #timer{
+    font-size: 8px;
+    background: #222;
+    color: #7CFC00;
+    padding: 3px 6px;
+    border: 2px solid #222;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@1.0.0/dist/embedded-app-sdk.js"></script>
+</head>
+<body>
+<div id="game-container"></div>
+<div class="game-wrapper">
+  <div class="game">
+    <h1>MY PET TOAD</h1>
+    <div id="timer">00:00</div>
+    <div class="meters">
+  <div class="meter"><span>HUNGER</span><div class="bar"><div class="fill hunger" id="hungerFill"></div></div></div>
+  <div class="meter"><span>LOVE</span><div class="bar"><div class="fill love" id="loveFill"></div></div></div>
+  <div class="meter"><span>FUN</span><div class="bar"><div class="fill fun" id="funFill"></div></div></div>
+</div>
+<div class="msg" id="msg">* is being toad *</div>
+
+    <div class="toad-scene">
+      <!-- The Toad -->
+      <div class="toad" id="toad">
+        <div class="eyes">
+          <div class="eye"><div class="pupil"></div><div class="shine"></div></div>
+          <div class="eye"><div class="pupil"></div><div class="shine"></div></div>
+        </div>
+        <div class="face">
+          <div class="mouth" id="mouth"></div>
+          <div class="tongue" id="tongue"></div>
+          <div class="cheek left" id="cheekL"></div>
+          <div class="cheek right" id="cheekR"></div>
+          <div class="belly"></div>
+        </div>
+        <div class="legs">
+          <div class="leg left"></div>
+          <div class="leg right"></div>
+        </div>
+      </div>
+      <!-- Effects -->
+      <div class="hearts" id="hearts"></div>
+      <div class="fly" id="fly">🍰</div>
+    </div>
+
+    <!-- 3 Squishy Buttons -->
+    <div class="buttons">
+      <button class="btn feed" onclick="doFeed()">🍰</button>
+      <button class="btn pet" onclick="doPet()">✋</button>
+      <button class="btn kiss" onclick="doKiss()">💋</button>
+    </div>
+    <div class="labels">
+      <span>FEED</span><span>PET</span><span>KIHH</span>
+    </div>
+    <button id="resetBtn" onclick="resetGame()" style="display:none;">↻ RESET</button>
+  </div>
+</div>
+
+<!-- === PASTE PART 3 (JS) RIGHT HERE === -->
+<script>
+   // Replace this with your actual Client ID from Discord Developer Portal
+        const clientId = '1534788323153940614'; 
+
+        // Check if the SDK loaded correctly
+        if (typeof DiscordSDK !== 'undefined') {
+            const discordSdk = new DiscordSDK(clientId);
+
+            async function init() {
+                try {
+                    console.log("Waiting for Discord...");
+                    await discordSdk.ready(); // This waits for the handshake
+                    console.log("Connected to Discord!");
+                    
+                    // START YOUR GAME LOGIC HERE
+                    // Example: document.getElementById('game-container').innerText = "Game Started!";
+                } catch (error) {
+                    console.error("Failed to connect to Discord:", error);
+                    // Fallback for testing outside Discord:
+                    document.body.innerHTML += "<p>Running in standalone mode (not in Discord)</p>";
+                }
+            }
+
+            init();
+        } else {
+            console.error("Discord SDK failed to load.");
+        }
+let audioCtx;
+function boop(freq=400, dur=0.15, type='sine'){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type; // 'sine' = soft, 'square' = 8-bit, 'triangle' = cute, 'sawtooth' = buzzy
+  osc.frequency.value = freq;
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+  osc.start();
+  osc.stop(audioCtx.currentTime + dur);
+}
+
+let hunger = 100, love = 100, fun = 100;
+let elapsed = 0;
+let busy = false;
+let isDead = false;
+const toad = document.getElementById('toad');
+const tongue = document.getElementById('tongue');
+const fly = document.getElementById('fly');
+const hearts = document.getElementById('hearts');
+const msg = document.getElementById('msg');
+const mouth = document.getElementById('mouth');
+const cheekL = document.getElementById('cheekL');
+const cheekR = document.getElementById('cheekR');
+const hungerFill = document.getElementById('hungerFill');
+const loveFill = document.getElementById('loveFill');
+const funFill = document.getElementById('funFill');
+
+function setMsg(t){ msg.textContent = t; }
+function updateMeters(){
+  hungerFill.style.width = hunger + '%';
+  loveFill.style.width = love + '%';
+  funFill.style.width = fun + '%';
+  // blink when low
+  hungerFill.classList.toggle('low', hunger < 25);
+  loveFill.classList.toggle('low', love < 25);
+  funFill.classList.toggle('low', fun < 25);
+  // toad looks sad when low
+  if(hunger < 20 || love < 20 || fun < 20) toad.style.filter = 'saturate(0.5) brightness(0.9)';
+  else toad.style.filter = 'none';
+}
+updateMeters();
+
+function updateTimer(){
+  let total = Math.floor(elapsed);
+  let m = String(Math.floor(total / 60)).padStart(2,'0');
+  let s = String(total % 60).padStart(2,'0');
+  document.getElementById('timer').textContent = m + ':' + s;
+}
+
+// DRAIN FASTER AND FASTER OVER TIME
+setInterval(()=>{
+  if(isDead) return; // stop draining when dead
+  elapsed += 0.1;
+  let decay = 0.04 + (elapsed * 0.015);
+  hunger = Math.max(0, hunger - decay);
+  love = Math.max(0, love - decay * 0.85);
+  fun = Math.max(0, fun - decay * 0.95);
+  updateMeters();
+  hunger = Math.max(0, hunger - decay);
+  love = Math.max(0, love - decay * 0.85);
+  fun = Math.max(0, fun - decay * 0.95);
+  updateMeters();
+  updateTimer(); // <-- ADD THIS LINE
+  if(hunger <= 0 || love <= 0 || fun <= 0){
+    isDead = true;
+    document.querySelector('.game').classList.add('dead');
+    document.getElementById('resetBtn').style.display = 'block';
+    setMsg('TOAD DIED! :(');
+    toad.style.filter = 'grayscale(1)';
+  } else if(hunger < 25) setMsg('STARVING!! 🪰');
+  else if(love < 25) setMsg('so lonely... 💔');
+  else if(fun < 25) setMsg('sooo bored... zzz');
+}, 100);
+
+function spawnHearts(emoji, count){
+  hearts.innerHTML = '';
+  for(let i=0; i<count; i++){
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.textContent = emoji;
+    h.style.left = (Math.random()*60 - 30) + 'px';
+    h.style.animationDelay = (i*0.08) + 's';
+    hearts.appendChild(h);
+  }
+  setTimeout(()=> hearts.innerHTML='', 900);
+}
+
+function doFeed(){
+  if(isDead) return;
+  if(busy) return;
+  busy = true;
+  hunger = Math.min(100, hunger + 75);
+  love = Math.min(100, love + 28);
+  updateMeters();
+  setMsg('nom!');
+  boop(600, 0.12, 'sine');
+setTimeout(()=> boop(800, 0.12, 'sine'), 100);
+  fly.classList.remove('eaten');
+  fly.classList.add('show');
+  setTimeout(()=>{ tongue.classList.add('out'); toad.classList.add('squish'); }, 300);
+  setTimeout(()=>{ fly.classList.add('eaten'); spawnHearts('💚', 3); }, 650);
+  setTimeout(()=>{
+    tongue.classList.remove('out');
+    fly.classList.remove('show','eaten');
+    toad.classList.remove('squish');
+    if(hunger>20) setMsg('* ribbit *');
+    busy = false;
+  }, 1100);
+}
+function doPet(){
+  if(isDead) return;
+  if(busy) return;
+  busy = true;
+  love = Math.min(100, love + 28);
+  fun = Math.min(100, fun + 72);
+  updateMeters();
+  setMsg('love beam');
+  boop(300, 0.5, 'sine');
+  setTimeout(()=> boop(800, 0.12, 'sine'), 100);
+  toad.classList.add('bounce');
+  cheekL.classList.add('show'); cheekR.classList.add('show');
+  spawnHearts('💖', 4);
+  setTimeout(()=>{
+    toad.classList.remove('bounce');
+    cheekL.classList.remove('show'); cheekR.classList.remove('show');
+    if(love>20 && fun>20) setMsg('* eeeeeee *');
+    busy = false;
+  }, 700);
+}
+function doKiss(){
+  if(isDead) return;
+  if(busy) return;
+  busy = true;
+
+  // --- TEXT TO SPEECH: SAY "E" ---
+  if('speechSynthesis' in window){
+    speechSynthesis.cancel(); // stop any previous E
+    const utter = new SpeechSynthesisUtterance('E');
+    utter.pitch = 55; // cute high pitch toad voice
+    utter.rate = Math.random() * 2.9 + 0.1; // random 0.1 to 3
+    utter.volume = 5;
+    speechSynthesis.speak(utter);
+  }
+
+  love = Math.min(100, love + 32);
+  fun = Math.min(100, fun + 12);
+  updateMeters();
+  setMsg('EE!!');
+  toad.classList.add('kissy');
+  mouth.classList.add('happy');
+  cheekL.classList.add('show'); cheekR.classList.add('show');
+  spawnHearts('💋', 5);
+  setTimeout(()=>{
+    toad.classList.remove('kissy');
+    mouth.classList.remove('happy');
+    cheekL.classList.remove('show'); cheekR.classList.remove('show');
+    if(love>20) setMsg('* love toad *');
+    busy = false;
+  }, 850);
+}
+function resetGame(){
+  hunger = 100; love = 100; fun = 100;
+  elapsed = 0;
+  isDead = false;
+  busy = false;
+  updateMeters();
+  updateTimer(); // <-- ADD THIS LINE
+  setMsg('* ribbit *');
+  document.querySelector('.game').classList.remove('dead');
+  document.getElementById('resetBtn').style.display = 'none';
+  toad.style.filter = 'none';
+  hearts.innerHTML = '';
+}
+</script>  
+</body>
+</html>
